@@ -75,9 +75,10 @@ namespace ProtoBowl_Bot
         
         private string RandomString(int length)
         {
+            Random r = new Random();
             const string chars = "abcdefghijklmnopqrstuvwxyz123456789";
             return new string(Enumerable.Repeat(chars, length)
-              .Select(s => s[new Random().Next(s.Length)]).ToArray());
+              .Select(s => s[r.Next(s.Length)]).ToArray());
         }
     }
 
