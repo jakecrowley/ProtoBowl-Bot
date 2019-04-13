@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,11 +18,11 @@ namespace ProtoBowl_Bot
         private WebClient webclient = new WebClient();
         private string roomname;
         private Uri websocketuri;
-        private string cookie = "PB4CLwn4g0vzwroqm8fzkhsk7engmobn2azxbasui";
-        private int mc = 0;
+        private string cookie;
 
         public ProtoBowlClient(string roomname)
         {
+            cookie = "PB4CL" + RandomString(36);
             string resp = webclient.DownloadString("http://ocean.protobowl.com:443/socket.io/1/");
             websocketuri = new Uri("ws://ocean.protobowl.com:443/socket.io/1/websocket/" + resp.Split(':')[0]);
             this.roomname = roomname;
@@ -70,6 +71,13 @@ namespace ProtoBowl_Bot
             {
                 throw new Exception("Client is not connected to the server.");
             }
+        }
+        
+        private string RandomString(int length)
+        {
+            const string chars = "abcdefghijklmnopqrstuvwxyz123456789";
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[new Random().Next(s.Length)]).ToArray());
         }
     }
 
