@@ -18,18 +18,15 @@ namespace ProtoBowl_Bot
             Console.WriteLine("ProtoBowl Bot v0.01 by Jake Crowley");
             Console.Write("Enter game id: ");
 
-            while (true)
+            ProtoBowlClient client = new ProtoBowlClient(Console.ReadLine());
+            client.connect();
+
+            client.OnQuestionEvent += (sender, q) =>
             {
-                ProtoBowlClient client = new ProtoBowlClient(Console.ReadLine());
-                client.connect();
+                Console.WriteLine("\nQuestion: " + q.Question + "\nAnswer: " + q.Answer);
+            };
 
-                client.OnQuestionEvent += (sender, q) =>
-                {
-                    Console.WriteLine("\nQuestion: " + q.Question + "\nAnswer: " + q.Answer);
-                };
-
-                Console.ReadLine();
-            }
+            Console.ReadLine();
         }
     }
 }
