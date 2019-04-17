@@ -93,12 +93,21 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\ProtoBowlClient.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>ProtoBowlClient.settings</DependentUpon>
+    </Compile>
     <Compile Include="ProtoBowlClient.cs" />
     <Compile Include="SocketIOClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="Properties\ProtoBowlClient.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>ProtoBowlClient.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
