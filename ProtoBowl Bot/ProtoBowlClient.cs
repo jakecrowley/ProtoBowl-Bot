@@ -60,28 +60,34 @@ namespace ProtoBowl_Bot
 
         private void parseMessage(string message)
         {
-            if(message.IndexOf("{") > -1)
-            {
-                message = message.Substring(message.IndexOf("{"));
-            }
-
-            if (message.Contains("user\":\""))
-            {
-                userid = message.Split(new string[] { "\"user\":\"" }, StringSplitOptions.None)[1].Split(new string[] { "\",\"" }, StringSplitOptions.None)[0];
-            }
-            
             try
             {
-                string question = message.Split(new string[] { "\"question\":\"" }, StringSplitOptions.None)[1].Split(new string[] { "\",\"" }, StringSplitOptions.None)[0];
-                string answer = message.Split(new string[] { "\"answer\":\"" }, StringSplitOptions.None)[1].Split(new string[] { "\",\"" }, StringSplitOptions.None)[0];
+                if (message.IndexOf("{") > -1)
+                {
+                    message = message.Substring(message.IndexOf("{"));
+                }
+                
+                SocketMessage json = JsonConvert.DeserializeObject<SocketMessage>(message);
 
-                QuestionEventArgs q = new QuestionEventArgs(question, answer);
-                if (!q.Equals(lastq)) {
-                    OnQuestionEvent?.Invoke(this, q);
+                if (json.name == "log" && userid == null)
+                {
+                    userid = json.args[0].user;
+                    Console.WriteLine("Got user id: " + userid);
+                }
+
+
+                string questionid = json.args[0].qid;
+                string question = json.args[0].question;
+                string answer = json.args[0].answer;
+                double endtime = json.args[0].end_time;
+
+                QuestionEventArgs q = new QuestionEventArgs(questionid, question, answer, endtime);
+                if (!q.Equals(lastq) && !q.isEmpty()) {
                     lastq = q;
+                    OnQuestionEvent?.Invoke(this, q);
                 }
             }
-            catch (IndexOutOfRangeException e) { }
+            catch (Exception e) { }
         }
 
         public void sendChatMessage(string message)
@@ -89,6 +95,23 @@ namespace ProtoBowl_Bot
             string session = RandomString(10);
             string msg = "{\"name\":\"chat\",\"args\":[{\"text\":\""+message+"\",\"session\":\""+session+"\",\"user\":\""+userid+"\",\"first\":true,\"done\":true}]}";
             client.SocketIOSend(msg);
+        }
+
+        public void sendAnswer(string answer)
+        {
+            if (lastq != null)
+            {
+                /*
+                if(currentTime() > lastq.EndTime)
+                {
+                    Console.WriteLine($"Invalid buzz, ct: {currentTime()}, et: {lastq.EndTime}");
+                    return;
+                }
+                */
+
+                client.SocketIOSend("{\"name\":\"buzz\",\"args\":[\"" + lastq.QuestionID + "\"]}");
+                client.SocketIOSend("{\"name\":\"guess\",\"args\":[{\"text\":\""+answer+"\",\"done\":true},null]}");
+            }
         }
 
         public void setName(string name)
@@ -103,7 +126,10 @@ namespace ProtoBowl_Bot
             }
         }
 
-        
+        private long currentTime()
+        {
+           return (long)DateTime.Now.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+        }
         
         private string RandomString(int length)
         {
@@ -116,13 +142,22 @@ namespace ProtoBowl_Bot
 
     public class QuestionEventArgs : EventArgs
     {
+        public string QuestionID { get; }
         public string Question { get; }
         public string Answer { get; }
+        public double EndTime { get; }
 
-        public QuestionEventArgs(String question, String answer)
+        public QuestionEventArgs(String qid, String question, String answer, double endtime)
         {
+            QuestionID = qid;
             Question = question;
             Answer = answer;
+            EndTime = endtime;
+        }
+
+        public bool isEmpty()
+        {
+            return QuestionID.Length == 0 || Question.Length == 0 || Answer.Length == 0;
         }
 
         public override bool Equals(object obj)
@@ -131,7 +166,16 @@ namespace ProtoBowl_Bot
                 return false;
 
             QuestionEventArgs other = (QuestionEventArgs)obj;
-            return Question.Equals(other.Question) && Answer.Equals(other.Answer);
+            return QuestionID.Equals(other.QuestionID);
         }
+    }
+
+    public class SocketMessage
+    {
+        [JsonProperty]
+        public string name;
+
+        [JsonProperty]
+        public dynamic args;
     }
 }

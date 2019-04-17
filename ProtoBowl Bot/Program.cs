@@ -13,7 +13,7 @@ namespace ProtoBowl_Bot
     {
         static void Main(string[] args)
         { 
-            Console.WriteLine("ProtoBowl Bot v0.01 by Jake Crowley");
+            Console.WriteLine("ProtoBowl Bot v0.02 by Jake Crowley");
             Console.Write("Enter game id: ");
 
             ProtoBowlClient client = new ProtoBowlClient(Console.ReadLine());
@@ -22,7 +22,8 @@ namespace ProtoBowl_Bot
 
             client.OnQuestionEvent += (sender, q) =>
             {
-                Console.WriteLine("\nQuestion: " + q.Question + "\nAnswer: " + q.Answer);
+                Console.WriteLine("\nQuestion ID: " + q.QuestionID + "\nQuestion: " + q.Question + "\nAnswer: " + q.Answer);
+                //client.sendAnswer(q.Answer);
                 //client.sendChatMessage("Answer: " + q.Answer);
             };
 
