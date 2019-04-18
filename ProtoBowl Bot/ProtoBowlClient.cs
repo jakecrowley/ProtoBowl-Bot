@@ -1,10 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Linq;
-using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
-using Websocket.Client;
 
 namespace ProtoBowl_Bot
 {
@@ -17,9 +14,7 @@ namespace ProtoBowl_Bot
         public event QuestionEventHandler OnQuestionEvent;
 
         private SocketIOClient client;
-        private WebClient webclient = new WebClient();
         private string roomname;
-        private Uri websocketuri;
         private string userid;
         private QuestionEventArgs lastq;
 
@@ -30,15 +25,13 @@ namespace ProtoBowl_Bot
                 settings.Cookie = "PB4CL" + RandomString(36);
                 settings.Save();
             }
-
-            string resp = webclient.DownloadString("http://ocean.protobowl.com:443/socket.io/1/");
-            websocketuri = new Uri("ws://ocean.protobowl.com:443/socket.io/1/websocket/" + resp.Split(':')[0]);
+            
             this.roomname = roomname;
         }
 
         public void connect()
         {
-            client = new SocketIOClient(websocketuri);
+            client = new SocketIOClient(new Uri("http://ocean.protobowl.com:443/socket.io/1/"));
             client.ReconnectTimeoutMs = (int)TimeSpan.FromSeconds(30).TotalMilliseconds;
             client.ReconnectionHappened.Subscribe(type =>
                 Console.WriteLine($"Connection to game established. Waiting for question..."));

@@ -1,11 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace ProtoBowl_Bot
 {
@@ -18,12 +12,33 @@ namespace ProtoBowl_Bot
 
             ProtoBowlClient client = new ProtoBowlClient(Console.ReadLine());
             client.connect();
-            //client.setName("AnswerBot");
+            client.setName("AnswerBot");
 
             client.OnQuestionEvent += (sender, q) =>
             {
                 Console.WriteLine("\nQuestion ID: " + q.QuestionID + "\nQuestion: " + q.Question + "\nAnswer: " + q.Answer);
-                //client.sendAnswer(q.Answer);
+
+                /*
+                string fanswer = q.Answer;
+                if (fanswer.IndexOf("[") > 0)
+                    fanswer = fanswer.Split('[')[0];
+                else if (fanswer.IndexOf("(") > 0)
+                    fanswer = fanswer.Split('(')[0];
+
+                if (q.Answer.ToLower().Contains("prompt") || q.Answer.Count(f => f == '{') > 1)
+                {
+                    fanswer = fanswer.Replace("{", "").Replace("}", "");
+                }
+                else
+                {
+                    if (fanswer.IndexOf("{") > -1 && fanswer.IndexOf("}") > -1)
+                        fanswer = fanswer.Split('{')[1].Split('}')[0];
+                }
+
+                client.sendAnswer(fanswer.Replace("\"", ""));
+                */
+                
+
                 //client.sendChatMessage("Answer: " + q.Answer);
             };
 
